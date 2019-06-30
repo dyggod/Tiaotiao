@@ -1,30 +1,65 @@
 <template>
     <div class="filmlist">
-        <div class="film">
+        <div class="film" v-for="(item,index) of filmList" :key="index">
             <div class="film-img">
-                <img src="../../../assets/movie1.jpg" alt="">
+                <img :src="item.img" alt="">
             </div>
             <div class="message">
                 <div>
-                    <div class="film-title">千与千寻</div>
-                    <div class="film-score">观众评<span>9.4</span></div>
-                    <div class="film-player">主演:周冬雨</div>
+                    <div class="film-title">{{item.title}}</div>
+                    <div class="film-score">观众评<span>{{item.score}}</span></div>
+                    <div class="film-player">主演:{{item.player}}</div>
                     <div class="film-times">今天217家影院放映2868场</div>
                 </div>
                 <div>
-                    <span>购票</span>
+                    <span @click="toFilmDetail(item.fid)">购票</span>
                 </div>
             </div>
-        </div>    
+        </div>
+        <mt-button size="large" type="danger" @click="loadMore">加载更多</mt-button>    
     </div>
 </template>
 
 <script>
 export default {
     data(){
-        return{}
+        return{
+            filmList:[],//电影列表数组
+            pno:1,       //分页查询时的页码
+            fid:''      //用于传递的fid
+        }
     },
-
+    methods:{
+        //1.页面加载电影数据事件
+        onload(){
+            var url="/filmList";
+            var obj={
+                pno:this.pno,
+                ps:''
+            }
+            this.axios.get(url,{params:obj}).then(result=>{
+                // console.log(result);
+                var list=this.filmList.concat(result.data.data);//凭借数组用list接住返回值
+                this.filmList=list //再给filmList
+               //console.log(this.filmList)
+            })
+        },
+        //2.去电影详情页面事件
+        toFilmDetail(fid){
+            //先得到函数传来的参数fid
+            console.log(fid);
+            //去详情页          
+            this.$router.push('/filmDetail/'+fid);
+        },
+        //3.加载更多
+        loadMore(){
+            this.pno++;
+            this.onload();
+        }
+    },
+    created(){
+        this.onload();
+    },
     components:{
 
     }
@@ -33,12 +68,11 @@ export default {
 
 <style scoped>
     div.film{
-        /* width: 255px;height: 90px; */
         display: flex; 
         padding-left: 15px;
     }
     div.film div.film-img{
-        width: 64px;
+        width: 5rem;
         height: 90px;
         padding-bottom: 12px;
         padding-top: 12px;
@@ -47,11 +81,12 @@ export default {
         width: 100%;height: 100%;
     }
     div.message{
-        width: 255px;height: 90px;
+        width: 100%;
+        height: 90px;
         margin-left: 15px;
-        padding-bottom: 12px;
-        padding-top: 12px;
-        padding-right: 14px;
+        padding-bottom: 0.9rem;
+        padding-top: 0.9rem;
+        padding-right:1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -61,9 +96,9 @@ export default {
         font-size: 17px;
         color: #333;
         font-weight: 700;
-        padding-right: 5px;
+        padding-right: 0.4rem;
         flex-shrink: 1;
-        margin-bottom: 2px;
+        margin-bottom: 0.1rem;
     }
     div.message div.film-score{
         font-size: 13px;

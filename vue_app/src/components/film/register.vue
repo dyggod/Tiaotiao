@@ -3,8 +3,9 @@
         <!-- 网页头 -->
         <titlebar :title="title" ></titlebar>
 
-         <div class="register-main">
-            <input type="text" placeholder="账户名/手机号/Email" v-model="uname">
+         <div class="register-main" style="position:relative">
+            <input type="text" placeholder="账户名/手机号/Email" v-model="uname" @blur="hasUname">
+            <span class="err" v-show="has">该用户名已被注册</span>
             <mt-popup 
                 v-model="uname_popupVisible"
                 position="middle">
@@ -20,7 +21,7 @@
                    此段不能为空
                 </div>
             </mt-popup>
-            <input type="password" placeholder="请再次输入您的密码" v-model="upwdAgain">
+            <input type="password" placeholder="请再次输入您的密码" v-model="upwdAgain" >
             <mt-popup
                 v-model="upwdAgain_popupVisible"
                 position="middle">
@@ -54,15 +55,16 @@ export default {
             uname_popupVisible:false,
             upwd_popupVisible:false,
             upwdAgain_popupVisible:false,
-            upwdErr_popupVisible:false
+            upwdErr_popupVisible:false,
+            has:false
 
         }
     },
     methods:{
-        //1.注册时间
+        //1.注册事件
         register(){
             console.log("打桩");
-            //判断是否为空
+            //1.1判断是否为空
             if(this.uname==""){
                 this.uname_popupVisible=true;
                 return
@@ -81,7 +83,7 @@ export default {
                 uname:this.uname,
                 upwd:this.upwd
             };
-            //发送请求,添加用户
+            //1.2发送请求,添加用户
             this.axios.get(url,{params:obj}).then(result=>{
                 //console.log(result);
                 if(result.data==200){ //如果返回值为200
@@ -96,10 +98,25 @@ export default {
                             this.$router.push('/login')
                         },1000)
                         
-                    )
-                    
+                    )     
                 }
             })
+        },
+        //2.失去焦点,判断用户名是否被注册过
+        hasUname(){
+            //如果不是空,验证用户名是否存在
+            if(this.uname){
+                var url="/hasUname";
+                var obj={uname:this.uname};
+                this.axios.get(url,{params:obj}).then(result=>{
+                    //console.log(result.data);
+                    if(result.data==200){
+                        //已被注册
+                        this.has=true
+                    }else(this.has=false)
+                })
+            }
+           
         }
     },
     components:{
@@ -129,6 +146,13 @@ export default {
         margin: 0.5rem auto;
         font-size: 1.3rem;
         
+    }
+    div.register-main span.err{
+        position: absolute;
+        font-size: 0.8rem;
+        color: red;
+        top:1rem;
+        left: 60%;
     }
     /* 提示 */
      /* mt-popup */

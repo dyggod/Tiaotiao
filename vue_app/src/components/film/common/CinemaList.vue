@@ -15,16 +15,16 @@
                 <span class="drop">></span>
             </div>
         </div> -->
-        <div class="cinema" v-for="n of 10" :key="n">
+        <div class="cinema" v-for="(item,index) of cinemaList" :key="index" @click="toCinemaDetail(item.cid)">
             <div class="cinema-detail">
                 <div class="d1">
-                    <span class="title">博纳国际影城 (万寿路店)</span>
-                    <span class="minPrice">29</span>
+                    <span class="title">{{item.title}}</span>
+                    <span class="minPrice">{{item.minprice}}</span>
                     <span>元起</span>
                 </div>
                 <div class="d2">
-                    <span class="position">海淀区复兴路41号凯德晶品购物中心4层</span>
-                    <span>700m</span>
+                    <span class="position">{{item.position}}</span>
+                    <span>{{item.distance}}</span>
                 </div>
                 <div class="d3">
                     <span>改签</span>
@@ -42,8 +42,38 @@
 <script>
 export default {
     data(){
-        return{}
-    }
+        return{
+            cinemaList:[],
+        }
+    },
+    methods:{
+        //1.加载电影院数据
+        onload(){
+            //
+            var url="/cinemalist";
+            // var obj={
+            //     pno:this.pno,
+            //     ps:''
+            // }
+            this.axios.get(url,{params:''}).then(result=>{
+                //console.log(result.data.data);
+                this.cinemaList=result.data.data;
+                //console.log(this.cinemaList);
+            })
+        },
+        //2.去影院详情
+        toCinemaDetail(e){
+            //拿到url中的fid
+            var fid=this.$route.params.fid
+            // console.log(fid);
+            //将fid给全局fid 在通过组件间传值
+            var cid=e;
+            this.$router.push('/cinemaDetail/'+cid+"/"+fid)
+        }
+    },
+    created(){
+        this.onload();
+    },
 }
 </script>
 
@@ -100,6 +130,11 @@ export default {
         justify-content:space-between;
         color: #666;
         font-size: 13px;
+    }
+    div.d2>span.position{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     div.d3{
         justify-content: left;

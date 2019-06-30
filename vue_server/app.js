@@ -80,19 +80,28 @@ server.get("/register",(req,res)=>{
 		}
 	})
 })
-
-//功能二:商品列表 66~85
-server.get("/product",(req,res)=>{
+	//验证用户是否存在
+server.get('/hasUname',(req,res)=>{
+	var uname=req.query.uname;
+	pool.query('select id from tt_user where uname=?',[uname],(err,result)=>{
+		if(err){throw err};
+		if(result.length>0){
+			res.send('200')
+		}else{
+			res.send('404')
+		}
+	})
+})
+//功能三:电影列表 
+server.get("/filmlist",(req,res)=>{
  //1:参数 pno pageSize
  var pno = req.query.pno;
  var ps = req.query.pageSize;
  //2:默认值 
  if(!pno){pno=1}
- if(!ps){ps=4}
+ if(!ps){ps=8}
  //2:sql
- var sql = " SELECT lid,title,price";
- sql+=" FROM xz_laptop";
- sql+=" LIMIT ?,?";
+ var sql ="select*from tt_filmlist limit ?,?"
  var offset = (pno-1)*ps;
  ps = parseInt(ps);
  //3:json
@@ -101,6 +110,84 @@ server.get("/product",(req,res)=>{
    res.send({code:1,msg:"查询成功",data:result});
  })
 });
+//功能四:电影详情页
+server.get("/filmdetail",(req,res)=>{
+ //1:参数 
+ var fid=req.query.fid
+ //2:sql
+ var sql ="select*from tt_filmlist where fid=?"
+ pool.query(sql,[fid],(err,result)=>{
+   if(err)throw err;
+   res.send({code:1,msg:"查询成功",data:result});
+ })
+});
+//功能五:电影院列表
+ server.get("/cinemalist",(req,res)=>{
+ //1:参数 pno pageSize
+//	 var pno = req.query.pno;
+//	 var ps = req.query.pageSize;
+//	 //2:默认值 
+//	 if(!pno){pno=1}
+//	 if(!ps){ps=8}
+	 //2:sql
+	 var sql ="select*from tt_cinemalist"
+//	 var offset = (pno-1)*ps;
+//	 ps = parseInt(ps);
+	 //3:json
+	 pool.query(sql,(err,result)=>{
+	   if(err)throw err;
+	   res.send({code:1,msg:"查询成功",data:result});
+	 })
+});
+	 //功能五.1:指定cid的电影院名字,地址
+ server.get("/cinemaDetail",(req,res)=>{
+	 var cid=req.query.cid;
+	 var sql ="select cid,title,position from tt_cinemalist where cid=?"
+	 pool.query(sql,[cid],(err,result)=>{
+	   if(err)throw err;
+	   res.send(result);
+	 })
+});
+//功能六:获取电影场次列表
+server.get('/times',(req,res)=>{
+	//参数
+  var fid=req.query.fid;
+  var cid=req.query.cid;
+  //console.log(req.query);
+	var sql="select * from tt_times where fid=? and cid=?";
+	pool.query(sql,[fid,cid],(err,result)=>{
+		if(err){throw err};
+		if(result.length>0){
+			res.send(result)
+		}
+	})
+})
+//*****获取选座页数据 */
+server.get('/choose',(req,res)=>{
+  //参数
+  var fid=req.query.fid;
+  var cid=req.query.cid;
+  var tid=req.query.tid;
+  var output={};
+  pool.query('select cid, title from tt_cinemalist where cid=?',[cid],(err,result)=>{
+    if(err){throw err};
+    if(result.length>0){
+      output.cData=result[0];
+      pool.query('select fid, title,time from tt_filmlist where fid=?',[fid],(err,result)=>{
+        if(err){throw err};
+        if(result.length>0){
+          output.fData=result[0];
+          pool.query('select tid, starttime,edition from tt_times where tid=?',[tid],(err,result)=>{
+            if(err){throw err};
+            if(result.length>0);
+            output.tData=result[0];
+            res.send(output);
+          })
+        }
+      })
+    }
+  })
+})
 
 
 //功能三:查询指定用户购物车信息88~114

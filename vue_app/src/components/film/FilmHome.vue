@@ -22,7 +22,7 @@
                     </div>
                     <!--  -->
                     <div class="blank" style="height:44px;"></div>
-                    <FilmList v-for="n of 10" :key="n"></FilmList>
+                    <FilmList ></FilmList>
                 </mt-tab-container-item>
                 <mt-tab-container-item id="willFilm">
                     <!-- 网页头 -->
@@ -74,6 +74,47 @@
                     <div class="blank" style="height:85px;"></div>
                     <CinemaList ></CinemaList>
                 </mt-tab-container-item>
+                <!-- 我的 面板 me -->
+                <mt-tab-container-item id="me">
+                    <!--cme 面板头信息  -->
+                    <titlebar :title="title[2]"></titlebar>
+                    <div class="me-header">
+                        <img src="../../assets/me-header.png" alt="">
+                    </div>
+                    <div class="me-order">
+                        <p>我的订单</p>
+                        <div>                          
+                            <router-link to="">
+                                <img src="../../assets/order-film.png" alt="">
+                                 <p>电影</p>
+                            </router-link>                                                    
+                            <router-link to="">
+                                <img src="../../assets/order-store.png" alt="">
+                                <p>商城</p>
+                            </router-link>                                                          
+                        </div>
+                    </div>
+                    <div class="me-group">
+                        <mt-cell
+                            title="在线观影"
+                            to="//github.com"
+                            is-link
+                            value="">
+                        </mt-cell>
+                        <mt-cell
+                            title="优惠券"
+                            to="//github.com"
+                            is-link
+                            value="">
+                        </mt-cell>
+                        <mt-cell
+                            title="折扣卡"
+                            to="//github.com"
+                            is-link
+                            value="">
+                        </mt-cell>
+                    </div>
+                </mt-tab-container-item>
             </mt-tab-container>
             <!--底部导航栏 -->
             <mt-tabbar v-model="active" fixed>
@@ -113,7 +154,7 @@ export default {
             isfocus:[
                 true,false,false
             ],
-            title:["跳跳电影",'影院']
+            title:["跳跳电影",'影院',"我的"]
         }
     },
     methods:{
@@ -149,9 +190,20 @@ export default {
                 } 
             }       
         },
+        //3.我的 ->去登陆 or me
         toLogin(){
-            console.log(11)
-            this.$router.push('/login')
+            console.log(11);
+            //如果当前的sessionStorage中没有uid,那么...
+            if(!sessionStorage.uid){
+                 this.$router.push('/login') //去登陆
+            }else{//如果存有uid,那么..
+                this.selected="me"    //开启我的面板
+            }
+           
+            
+            
+                 
+            
         }
     },
     components:{
@@ -261,5 +313,39 @@ export default {
     }
     div.filter>div+div{
         border-left: 1px solid #ddd;
+    }
+    /* me 面板 */
+        /* div.me-header */
+    div.me-header{
+        height: 9rem;
+    }
+    div.me-header img{
+        width: 100%;
+        height: 100%;
+    }
+        /* div.me-order */
+    div.me-order{
+        display: flex;
+        flex-flow: column;
+        height: 9rem;
+    }
+    div.me-order p{
+        text-align: center;
+        /* margin: 0; */
+        font-size: 1rem;
+    }
+    div.me-order>div{
+        display: flex;
+        justify-content: space-around;
+    }
+    div.me-order>div>a{
+        display: inline-block;
+        width: 50%;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+    }
+    div.me-order>div a p{
+        margin: 0;
     }
 </style>

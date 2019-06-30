@@ -1,7 +1,7 @@
 <template>
     <div class="Login">
         <!-- 网页头 -->
-        <titlebar :title="title" ></titlebar>
+        <titlebar :title="title" :back="true" ></titlebar>
         <!-- 创建页面面板 -->
         <mt-tab-container v-model="selected">
             <!-- 面板一  美团账号登录 -->
@@ -94,7 +94,25 @@ export default {
                 upwd:this.upwd
             };
             this.axios.get(url,{params:obj}).then(result=>{
-                console.log(result)
+                //console.log(result)
+                if(result.data.code==1){ //如果返回值为200
+                    return new Promise((open)=>{  //设置promise
+                        this.$toast({  //弹出提示
+                        message:'登录成功',
+                        position:'middle',
+                        duration:1000
+                        });
+                        sessionStorage.uid=result.data.uid;
+                    }).then(
+                        setTimeout(()=>{ //一秒后跳转
+                            this.$router.push('/')
+                        },1000)
+                        
+                    )
+                    
+                }else{
+                    console.log('err')
+                }
             })
         },
         //3.去注册事件
